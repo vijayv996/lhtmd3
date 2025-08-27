@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF518242), brightness: Brightness.dark),
       ),
       home: MyHomePage(),
     );
@@ -36,16 +36,34 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Habits'),
+        actions: [
+          IconButton(
+            onPressed: () {}, 
+            tooltip: 'Sort',
+            icon: Icon(Icons.sort)
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 13),
+            child: IconButton(
+              onPressed: () {}, 
+              tooltip: 'graph view', // github commit history typa view
+              icon: Icon(Icons.view_agenda)
+            ),
+          )
+        ],
+        backgroundColor: Theme.of(context).colorScheme.surface,
+      ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
           });
         },
-        backgroundColor: theme.secondaryHeaderColor,
-        indicatorColor: theme.primaryColor,
+        indicatorColor: Theme.of(context).colorScheme.primaryContainer,
         selectedIndex: currentPageIndex,
         destinations: [
           NavigationDestination(
@@ -69,7 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
         Habits(),
         Stats(),
         Settings(),
-      ][currentPageIndex]
+      ][currentPageIndex],
+      backgroundColor: theme.scaffoldBackgroundColor,
     );
   }
 }
