@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lhtmd3/pages/habits.dart';
-import 'package:lhtmd3/pages/settings.dart';
-import 'package:lhtmd3/pages/stats.dart';
+import 'package:lhtmd3/pages/habits_page.dart';
+import 'package:lhtmd3/pages/settings_page.dart';
+import 'package:lhtmd3/pages/stats_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF518242), brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 22, 53, 12), brightness: Brightness.dark),
       ),
       home: MyHomePage(),
     );
