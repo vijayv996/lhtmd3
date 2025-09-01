@@ -57,17 +57,22 @@ class _HabitTileState extends State<HabitTile> {
         int maxIcons = ((constraints.maxWidth - 200) / 45).floor().clamp(1, 100);
         
         return ListTile(
+          contentPadding: EdgeInsets.only(left: 16.0, right: 8.0),
           title: Text(widget.habitName),
           leading: Icon(Icons.incomplete_circle),
           trailing: Wrap(
             // spacing: 10,
             children: [
               for (int i = 0; i < maxIcons; i++) ...[
-                IconButton(
-                  onPressed: () { setState(() {
-                    // TODO: update the database & icon
-                  }); }, 
-                  icon: Icon(widget.habitStates[i] == 0 ? Icons.close : widget.habitStates[i] == 1 ? Icons.check : Icons.remove)
+                SizedBox(
+                  height: 48,
+                  width: 48,
+                  child: IconButton(
+                    onPressed: () { setState(() {
+                      // TODO: update the database & icon
+                    }); }, 
+                    icon: Icon(widget.habitStates[i] == 0 ? Icons.close : widget.habitStates[i] == 1 ? Icons.check : Icons.remove)
+                  ),
                 ),
               ],
             ],

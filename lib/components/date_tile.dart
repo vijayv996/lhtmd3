@@ -10,15 +10,19 @@ class DateTile extends StatelessWidget {
         int maxIcons = ((constraints.maxWidth - 200) / 45).floor().clamp(1, 100);
 
         return ListTile(
+          contentPadding: EdgeInsets.only(left: 16.0, right: 8.0),
           trailing: Wrap(
             children: [
               for (int i = 0; i < maxIcons; i++) ...[
                 SizedBox(
-                  width: 40, // Width of iconbutton? wtf
-                  child: Text(
-                    'Mon\n 24',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
+                  width: 48, // Width of iconbutton? wtf
+                  height: 48,
+                  child: Center(
+                    child: Text(
+                      'Mon\n 24',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
               ]
