@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:lhtmd3/components/habit_sheet.dart';
 import 'package:lhtmd3/pages/habits_page.dart';
 import 'package:lhtmd3/pages/settings_page.dart';
 import 'package:lhtmd3/pages/stats_page.dart';
+import 'dart:io';
 
-void main() {
+import 'package:lhtmd3/services/database.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+void main() async {
+  if (Platform.isWindows || Platform.isLinux) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final databaseService = DatabaseService();
+  final userExists = await databaseService.userExists();
+
+  if(!userExists) {
+    await databaseService.createDefaultUser();
+  }
+  
   runApp(const MyApp());
 }
 

@@ -6,42 +6,70 @@ import 'package:lhtmd3/models/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+class DatabaseService {
+  static final DatabaseService _instance = DatabaseService._internal();
+  factory DatabaseService() => _instance;
+  DatabaseService._internal();
 
-  final database = openDatabase(
-    join(await getDatabasesPath(), 'lht.db'),
-    onCreate: (db, version) async {
-      await db.execute(
-        'CREATE TABLE user(user_id INTEGER PRIMARY KEY, username TEXT)',
-      );
-      await db.execute(
-        '''
-        CREATE TABLE habits(
-          habit_id INTEGER PRIMARY KEY,
-          user_id INTEGER NOT NULL,
-          habit_name TEXT NOT NULL,
-          created_on INTEGER NOT NULL,
-          habit_type TEXT NOT NULL,
-          measurement_unit TEXT,
-          FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
-        )
-        ''',
-      );
-      await db.execute(
-        '''
-        CREATE TABLE habit_entries(
-          entry_id INTEGER PRIMARY KEY,
-          habit_id INTEGER NOT NULL,
-          entry_date INTEGER NOT NULL,
-          value REAL NOT NULL,
-          FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE
-        )
-        '''
-      );
-    },
-    version: 1,
-  );
+  static Database? _database;
+
+  Future<Database> get database async {
+    if(_database != null) return _database!;
+    _database = await _initDatabse();
+    return _database!;
+  }
+
+  Future<Database> _initDatabse() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    return openDatabase(
+      join(await getDatabasesPath(), 'lht.db'),
+      onCreate: (db, version) async {
+        await db.execute(
+          'CREATE TABLE user(user_id INTEGER PRIMARY KEY, username TEXT)',
+        );
+        await db.execute(
+          '''
+          CREATE TABLE habits(
+            habit_id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            habit_name TEXT NOT NULL,
+            created_on INTEGER NOT NULL,
+            habit_type TEXT NOT NULL,
+            measurement_unit TEXT,
+            FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
+          )
+          ''',
+        );
+        await db.execute(
+          '''
+          CREATE TABLE habit_entries(
+            entry_id INTEGER PRIMARY KEY,
+            habit_id INTEGER NOT NULL,
+            entry_date INTEGER NOT NULL,
+            value REAL NOT NULL,
+            FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE
+          )
+          '''
+        );
+      },
+      version: 1,
+    );
+  }
+
+  Future<bool> userExists() async {
+    final db = await database;
+    final result = await db.query('user');
+    return result.isNotEmpty;
+  }
+
+  Future<void> createDefaultUser() async {
+    final user = User(
+      userId: 1,
+      username: 'Default User',
+    );
+    await insertUser(user);
+  }
 
   Future<void> insertUser(User user) async {
     final db = await database;
@@ -53,6 +81,16 @@ void main() async {
     );
   }
 
+  Future<List<User>> getUsers() async {
+    final db = await database;
+
+    final List<Map<String, Object?>> userMaps = await db.query('user');
+    return [
+      for (final {'user_id': userId as int, 'username': username as String} in userMaps)
+        User(userId: userId, username: username),
+    ];
+  }
+  
   Future<void> insertHabit(Habit habit) async {
     final db = await database;
 
