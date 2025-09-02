@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-enum HabitType { yesNo, measurable }
+import 'package:lhtmd3/models/habit.dart';
+import 'package:lhtmd3/services/database.dart';
 
 class HabitSheet extends StatefulWidget {
   const HabitSheet({
@@ -99,9 +99,17 @@ class _HabitSheetState extends State<HabitSheet> {
                   child: const Text('Cancel'),
                 ),
                 FilledButton.tonal(
-                  onPressed: () {
-                    // TODO: Implement submit logic
+                  onPressed: () async {
+                    final databaseService = DatabaseService();
+                    final habit = Habit(
+                      userId: 1, 
+                      habitId: DateTime.now().millisecondsSinceEpoch,
+                      habitName: _nameController.text,
+                      habitType: _habitType,
+                      measurementUnit: _unitsController.text,
+                    );
                     Navigator.pop(context);
+                    await databaseService.insertHabit(habit);
                   },
                   child: const Text('Submit'),
                 ),
