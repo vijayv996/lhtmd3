@@ -101,6 +101,33 @@ class DatabaseService {
     );
   }
 
+  Future<List<Habit>> getHabits(int userId) async {
+    final db = await database;
+
+    final List<Map<String, Object?>> habitMaps = await db.query(
+      'habits',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+
+    return [
+      for (final {
+            'habit_id': habitId as int,
+            'user_id': userId as int,
+            'habit_name': habitName as String,
+            'habit_type': habitType as String,
+            'measurement_unit': measurementUnit as String?,
+          } in habitMaps)
+        Habit(
+          habitId: habitId,
+          userId: userId,
+          habitName: habitName,
+          habitType: HabitType.values.firstWhere((e) => e.toString().split('.').last == habitType),
+          measurementUnit: measurementUnit,
+        ),
+    ];
+  }
+
   Future<void> insertEntry(HabitEntry entry) async {
     final db = await database;
     
