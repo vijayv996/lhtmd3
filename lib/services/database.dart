@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
+import 'package:lhtmd3/models/habit_with_entries.dart';
 import 'package:lhtmd3/models/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -31,10 +32,9 @@ class DatabaseService {
         await db.execute(
           '''
           CREATE TABLE habits(
-            habit_id INTEGER PRIMARY KEY,
+            habit_id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             habit_name TEXT NOT NULL,
-            created_on INTEGER NOT NULL,
             habit_type TEXT NOT NULL,
             measurement_unit TEXT,
             FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
@@ -137,4 +137,45 @@ class DatabaseService {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+  Future<List<HabitEntry>> getEntries(int habitId, int maxIcons) async {
+    final db = await database;
+    final List<Map<String, Object?>> entryMaps = await db.query(
+      'habit_entries',
+      where: 'habit_id = ?',
+      whereArgs: [habitId],
+      orderBy: 'entry_date DESC',
+      limit: maxIcons
+    );
+    return [
+      for(final {
+        'entry_id': entryId as int,
+        'habti_id': habitId as int,
+        'entry_date': entryDate as int,
+        'value': value as double,
+      } in entryMaps)
+      HabitEntry(
+        entryId: entryId,
+        habitId: habitId,
+        entryDate: DateTime.fromMillisecondsSinceEpoch(entryDate),
+        value: value
+      )
+    ];
+  }
+
+  Future<List<HabitWithEntries>> getHabitsWithEntries(int maxIcons) async {
+    final habits = await getHabits(1);
+    final habitsWithEntries = <HabitWithEntries>[];
+    for(final habit in habits) {
+      final id = habit.habitId;
+      if(id != null) {
+        final entries = await getEntries(id, maxIcons);
+        habitsWithEntries.add(HabitWithEntries(habit: habit, entries: entries));
+      }
+    }
+    return habitsWithEntries;
+  }
+
+  Future<void> deleteDatabase() async =>
+    databaseFactory.deleteDatabase(join(await getDatabasesPath(), 'lht.db'));
 }

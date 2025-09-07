@@ -103,13 +103,16 @@ class _HabitSheetState extends State<HabitSheet> {
                     final databaseService = DatabaseService();
                     final habit = Habit(
                       userId: 1, 
-                      habitId: DateTime.now().millisecondsSinceEpoch,
+                      habitId: null,
                       habitName: _nameController.text,
                       habitType: _habitType,
                       measurementUnit: _unitsController.text,
                     );
                     Navigator.pop(context);
                     await databaseService.insertHabit(habit);
+                    setState(() {
+                      // TODO: reload HabitTiles in habits_page
+                    });
                   },
                   child: const Text('Submit'),
                 ),

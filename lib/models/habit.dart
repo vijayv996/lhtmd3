@@ -4,14 +4,14 @@ enum HabitType {
 
 class Habit {
   final int userId;
-  final int habitId;
+  final int? habitId;
   final String habitName;
   final HabitType habitType;
   final String? measurementUnit;
 
   const Habit({
     required this.userId,
-    required this.habitId,
+    this.habitId,
     required this.habitName,
     required this.habitType,
     this.measurementUnit,
