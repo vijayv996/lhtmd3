@@ -3,8 +3,11 @@ import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/services/database.dart';
 
 class HabitSheet extends StatefulWidget {
+  final VoidCallback onHabitAdded;
+
   const HabitSheet({
     super.key,
+    required this.onHabitAdded,
   });
 
   @override
@@ -110,9 +113,7 @@ class _HabitSheetState extends State<HabitSheet> {
                     );
                     Navigator.pop(context);
                     await databaseService.insertHabit(habit);
-                    setState(() {
-                      // TODO: reload HabitTiles in habits_page
-                    });
+                    widget.onHabitAdded();
                   },
                   child: const Text('Submit'),
                 ),

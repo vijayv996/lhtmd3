@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lhtmd3/components/habit_sheet.dart';
 import 'package:lhtmd3/pages/habits_page.dart';
 import 'package:lhtmd3/pages/settings_page.dart';
 import 'package:lhtmd3/pages/stats_page.dart';
@@ -107,20 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
         Stats(),
         Settings(),
       ][currentPageIndex],
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context, 
-            showDragHandle: true,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return HabitSheet();
-            },
-          );
-        },
-        label: Text('Add Habit'),
-        icon: Icon(Icons.add),
-      ),
       backgroundColor: theme.scaffoldBackgroundColor,
     );
   }

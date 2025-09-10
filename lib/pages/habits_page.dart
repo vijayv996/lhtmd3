@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/components/date_tile.dart';
+import 'package:lhtmd3/components/habit_sheet.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/models/habit_with_entries.dart';
@@ -43,37 +44,53 @@ class _HabitsState extends State<Habits> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        DateTile(dates: _dates),
-        ListTile(title: Text('delete database'),
-        onTap: databaseService.deleteDatabase,),
-        FutureBuilder<List<HabitWithEntries>>(
-          future: _habitsList,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator(),); 
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text('No habits found.');
-            } else {
-              return Column(
-                children: snapshot.data!.map((habit) {
-                  return HabitTile(
-                    habitName: habit.habit.habitName,
-                    habitId: habit.habit.habitId!,
-                    habitType: habit.habit.habitType,
-                    dates: _dates,
-                    habitEntries: habit.entries,
-                    onUpdate: loadHabits,
-                  );
-                }).toList(),
-              );
-            }
-          },
-        ),
-      ],
+    return Scaffold(
+      body: ListView(
+        children: [
+          DateTile(dates: _dates),
+          ListTile(title: Text('delete database'),
+          onTap: databaseService.deleteDatabase,),
+          FutureBuilder<List<HabitWithEntries>>(
+            future: _habitsList,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator(),); 
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No habits found.');
+              } else {
+                return Column(
+                  children: snapshot.data!.map((habit) {
+                    return HabitTile(
+                      habitName: habit.habit.habitName,
+                      habitId: habit.habit.habitId!,
+                      habitType: habit.habit.habitType,
+                      dates: _dates,
+                      habitEntries: habit.entries,
+                      onUpdate: loadHabits,
+                    );
+                  }).toList(),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context, 
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return HabitSheet(onHabitAdded: loadHabits);
+            },
+          );
+        },
+        label: Text('Add Habit'),
+        icon: Icon(Icons.add),
+      ),
     );
   }
 }
