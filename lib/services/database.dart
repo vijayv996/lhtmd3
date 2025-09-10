@@ -44,10 +44,11 @@ class DatabaseService {
         await db.execute(
           '''
           CREATE TABLE habit_entries(
-            entry_id INTEGER PRIMARY KEY,
+            entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
             habit_id INTEGER NOT NULL,
             entry_date INTEGER NOT NULL,
             value REAL NOT NULL,
+            UNIQUE(habit_id, entry_date)
             FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE
           )
           '''
@@ -138,19 +139,19 @@ class DatabaseService {
     );
   }
 
-  Future<List<HabitEntry>> getEntries(int habitId, int maxIcons) async {
+  Future<List<HabitEntry>> getEntries(int habitId, DateTime startDate, DateTime endDate) async {
     final db = await database;
     final List<Map<String, Object?>> entryMaps = await db.query(
       'habit_entries',
-      where: 'habit_id = ?',
-      whereArgs: [habitId],
+      where: 'habit_id = ? AND entry_date >= ? AND entry_date <= ?',
+      whereArgs: [habitId, startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
       orderBy: 'entry_date DESC',
-      limit: maxIcons
     );
+    
     return [
       for(final {
         'entry_id': entryId as int,
-        'habti_id': habitId as int,
+        'habit_id': habitId as int,
         'entry_date': entryDate as int,
         'value': value as double,
       } in entryMaps)
@@ -163,13 +164,18 @@ class DatabaseService {
     ];
   }
 
-  Future<List<HabitWithEntries>> getHabitsWithEntries(int maxIcons) async {
+  Future<List<HabitWithEntries>> getHabitsWithEntries(List<DateTime> dates) async {
+    if(dates.isEmpty) return[];
+
     final habits = await getHabits(1);
     final habitsWithEntries = <HabitWithEntries>[];
+
+    final startDate = dates.first;
+    final endDate = dates.last;
     for(final habit in habits) {
       final id = habit.habitId;
       if(id != null) {
-        final entries = await getEntries(id, maxIcons);
+        final entries = await getEntries(id, startDate, endDate);
         habitsWithEntries.add(HabitWithEntries(habit: habit, entries: entries));
       }
     }

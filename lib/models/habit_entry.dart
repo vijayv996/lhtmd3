@@ -1,11 +1,11 @@
 class HabitEntry {
-  final int entryId;
+  final int? entryId;
   final int habitId;
   final DateTime entryDate;
   final double value;
 
   const HabitEntry({
-    required this.entryId,
+    this.entryId,
     required this.habitId,
     required this.entryDate,
     required this.value,
@@ -15,7 +15,7 @@ class HabitEntry {
     return {
       'entry_id': entryId,
       'habit_id': habitId,
-      'entry_date': entryDate.toIso8601String(),
+      'entry_date': entryDate.millisecondsSinceEpoch,
       'value': value,
     };
   }
