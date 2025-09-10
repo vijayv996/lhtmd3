@@ -18,13 +18,24 @@ class _HabitsState extends State<Habits> {
   late Future<List<HabitWithEntries>> _habitsList;
   final databaseService = DatabaseService();
   List<DateTime> _dates = [];
+  double? _lastWidth;
   
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Initialize _habitsList to avoid a LateInitializationError on the first build.
+    _habitsList = Future.value([]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final width = MediaQuery.of(context).size.width;
+    // Reload habits if the width changes to make the date view responsive.
+    if (width != _lastWidth) {
+      _lastWidth = width;
       loadHabits();
-    });
+    }
   }
 
   void loadHabits() {
