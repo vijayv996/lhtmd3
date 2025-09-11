@@ -141,7 +141,7 @@ class DatabaseService {
 
   Future<List<HabitEntry>> getEntries(int habitId, DateTime startDate, DateTime endDate) async {
     final db = await database;
-    final List<Map<String, Object?>> entryMaps = await db.query(
+    final List<Map<String, Object?>> entryMap = await db.query(
       'habit_entries',
       where: 'habit_id = ? AND entry_date >= ? AND entry_date <= ?',
       whereArgs: [habitId, startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
@@ -154,11 +154,34 @@ class DatabaseService {
         'habit_id': habitId as int,
         'entry_date': entryDate as int,
         'value': value as double,
-      } in entryMaps)
+      } in entryMap)
       HabitEntry(
         entryId: entryId,
         habitId: habitId,
         entryDate: DateTime.fromMillisecondsSinceEpoch(entryDate),
+        value: value
+      )
+    ];
+  }
+
+  Future<List<HabitEntry>> getAllEntries(int habitId) async {
+    final db = await database;
+    final List<Map<String, Object?>> entryMap = await db.query(
+      'habit_entries',
+      where: 'habit_id = ?',
+      whereArgs: [habitId],
+      orderBy: 'entry_date DESC',
+    );
+
+    return [
+      for(final {
+        'habit_id': habitId as int,
+        'entry_date': entryDate as int,
+        'value': value as double,
+      } in entryMap) 
+      HabitEntry(
+        habitId: habitId, 
+        entryDate: DateTime.fromMillisecondsSinceEpoch(entryDate), 
         value: value
       )
     ];
