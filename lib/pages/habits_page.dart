@@ -4,6 +4,7 @@ import 'package:lhtmd3/components/habit_sheet.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/models/habit_with_entries.dart';
+import 'package:lhtmd3/pages/stats_page.dart';
 import 'package:lhtmd3/services/database.dart';
 import 'package:lhtmd3/util/date_util.dart';
 
@@ -40,7 +41,7 @@ class _HabitsState extends State<Habits> {
 
   void loadHabits() {
     var width = MediaQuery.sizeOf(context).width;
-    int maxIcons = ((width - 200) / 45).floor().clamp(1, 100);
+    int maxIcons = ((width - 150) / 45).floor().clamp(1, 100);
 
     final newDates = <DateTime>[];
     for(int i = 0; i < maxIcons; i++) {
@@ -59,8 +60,6 @@ class _HabitsState extends State<Habits> {
       body: ListView(
         children: [
           DateTile(dates: _dates),
-          ListTile(title: Text('delete database'),
-          onTap: databaseService.deleteDatabase,),
           FutureBuilder<List<HabitWithEntries>>(
             future: _habitsList,
             builder: (context, snapshot) {
@@ -142,6 +141,14 @@ class _HabitTileState extends State<HabitTile> {
           contentPadding: EdgeInsets.only(left: 16.0, right: 8.0),
           title: Text(widget.habitName),
           leading: Icon(Icons.incomplete_circle),
+          onTap: () {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (context) => Stats(habitEntries: widget.habitEntries)
+              )
+            );
+          },
           trailing: Wrap(
             children: [
               for(final date in widget.dates) ...[
@@ -154,7 +161,14 @@ class _HabitTileState extends State<HabitTile> {
                       final existingEntry = entriesMap[date];
                       double newValue;
                       if(existingEntry != null) {
-                        newValue = existingEntry.value == 0 ? 1 : 0;
+                        newValue = existingEntry.value == 0 ? 1 : 0; // TODO: add skipping
+                        if(existingEntry.value == 0) {
+                          newValue = 1;
+                        } else if(existingEntry.value == 1) {
+                          newValue = 2;
+                        } else {
+                          newValue = 1;
+                        }
                       } else {
                         newValue = 1;
                       }
@@ -168,7 +182,7 @@ class _HabitTileState extends State<HabitTile> {
                       await databaseService.insertEntry(newentry);
                       widget.onUpdate();
                     }, icon: _getIconForEntry(entriesMap[date]?.value))
-                    : Text('temp'),
+                    : Text('temp'), // TODO: implement measurable habit entries
                 ),
               ]
             ],
