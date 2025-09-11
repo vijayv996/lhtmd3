@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/pages/habits_page.dart';
+import 'package:lhtmd3/pages/pomodoro_page.dart';
 import 'package:lhtmd3/pages/settings_page.dart';
-import 'package:lhtmd3/pages/stats_page.dart';
 import 'dart:io';
-
 import 'package:lhtmd3/services/database.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -28,7 +27,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -60,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Habits'),
         actions: [
           IconButton(
+            // TODO: implement sorting
             onPressed: () {}, 
             tooltip: 'Sort',
             icon: Icon(Icons.sort)
@@ -67,8 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.only(right: 13),
             child: IconButton(
+              // TODO: github heatmap like ui
               onPressed: () {}, 
-              tooltip: 'graph view', // github commit history typa view
+              tooltip: 'graph view',
               icon: Icon(Icons.view_agenda)
             ),
           )
@@ -90,9 +90,9 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Habits'
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.analytics),
-            icon: Icon(Icons.analytics_outlined),
-            label: 'Stats'
+            selectedIcon: Icon(Icons.timer),
+            icon: Icon(Icons.timer_outlined),
+            label: 'Pomodoro'
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.settings_applications),
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: [
         Habits(),
-        Stats(),
+        Pomodoro(),
         Settings(),
       ][currentPageIndex],
       backgroundColor: theme.scaffoldBackgroundColor,
