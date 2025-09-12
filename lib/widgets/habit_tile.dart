@@ -3,7 +3,7 @@ import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/util/date_util.dart';
 import 'package:lhtmd3/pages/stats_page.dart';
-import 'package:lhtmd3/services/database.dart';
+import 'package:lhtmd3/widgets/entry_button.dart';
 
 class HabitTile extends StatefulWidget {
   final String habitName;
@@ -11,6 +11,7 @@ class HabitTile extends StatefulWidget {
   final HabitType habitType;
   final List<DateTime> dates;
   final List<HabitEntry> habitEntries;
+  final String? measurementUnits;
   final Function() onUpdate;
 
   const HabitTile({
@@ -20,6 +21,7 @@ class HabitTile extends StatefulWidget {
     required this.habitType,
     required this.dates,
     required this.habitEntries,
+    this.measurementUnits,
     required this.onUpdate,
   });
 
@@ -51,74 +53,19 @@ class _HabitTileState extends State<HabitTile> {
           },
           trailing: Wrap(
             children: [
-              for(final date in widget.dates) ...[
-                SizedBox(
-                  height: 48,
-                  width: 48,
-                  child: widget.habitType == HabitType.yesNo
-                    ? IconButton(onPressed: () async {
-                      final databaseService = DatabaseService();
-                      final existingEntry = entriesMap[date];
-                      double newValue;
-                      if(existingEntry != null) {
-                        if(existingEntry.value == 0) {
-                          newValue = 1;
-                        } else if(existingEntry.value == 1) {
-                          newValue = 2;
-                        } else {
-                          newValue = 1;
-                        }
-                      } else {
-                        newValue = 1;
-                      }
-
-                      final newentry = HabitEntry(
-                        entryId: entriesMap[date]?.entryId,
-                        habitId: widget.habitId, 
-                        entryDate: date, 
-                        value: newValue
-                      );
-                      await databaseService.insertEntry(newentry);
-                      widget.onUpdate();
-                    }, icon: _getIconForEntry(entriesMap[date]?.value))
-                    : TextButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context, 
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Enter Value: '),
-                              content: TextField(),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {}, 
-                                  child: Text('CANCEL')
-                                ),
-                                FilledButton(
-                                  onPressed: () {}, 
-                                  child: Text('OK')
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }, 
-                      child: Text('Te')
-                    ), // TODO: implement measurable habit entries
+              for(final date in widget.dates)
+                EntryButton(
+                  habitType: widget.habitType, 
+                  habitId: widget.habitId, 
+                  measurementUnits: widget.measurementUnits,
+                  onUpdate: widget.onUpdate, 
+                  entriesMap: entriesMap, 
+                  date: date
                 ),
-              ]
             ],
           ),
         );
       },
     );
   }
-}
-
-Widget _getIconForEntry(double? value) {
-  IconData icon = Icons.close;
-  if(value == 0 || value == null) icon = Icons.close;
-  if(value == 1) icon = Icons.check;
-  if(value == 2) icon = Icons.remove;
-  return Icon(icon);
 }

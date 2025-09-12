@@ -39,7 +39,7 @@ class _HabitsState extends State<Habits> {
 
   void loadHabits() {
     var width = MediaQuery.sizeOf(context).width;
-    int maxIcons = ((width - 150) / 45).floor().clamp(1, 100);
+    int maxIcons = ((width - 200) / 45).floor().clamp(1, 100);
 
     final newDates = <DateTime>[];
     for(int i = 0; i < maxIcons; i++) {
@@ -76,6 +76,7 @@ class _HabitsState extends State<Habits> {
                       habitType: habit.habit.habitType,
                       dates: _dates,
                       habitEntries: habit.entries,
+                      measurementUnits: habit.habit.measurementUnit,
                       onUpdate: loadHabits,
                     );
                   }).toList(),
