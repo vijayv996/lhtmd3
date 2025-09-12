@@ -58,7 +58,6 @@ class _HabitTileState extends State<HabitTile> {
                   habitType: widget.habitType, 
                   habitId: widget.habitId, 
                   measurementUnits: widget.measurementUnits,
-                  onUpdate: widget.onUpdate, 
                   entriesMap: entriesMap, 
                   date: date
                 ),

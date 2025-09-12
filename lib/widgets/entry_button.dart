@@ -9,7 +9,6 @@ class EntryButton extends StatefulWidget {
     required this.habitType,
     required this.habitId,
     this. measurementUnits,
-    required this.onUpdate,
     required this.entriesMap,
     required this.date,
   });
@@ -17,7 +16,6 @@ class EntryButton extends StatefulWidget {
   final HabitType habitType;
   final int habitId;
   final String? measurementUnits;
-  final VoidCallback onUpdate;
   final Map<DateTime, HabitEntry> entriesMap;
   final DateTime date;
 
@@ -62,7 +60,9 @@ class _EntryButtonState extends State<EntryButton> {
             value: newValue
           );
           await databaseService.insertEntry(newentry);
-          widget.onUpdate();
+          setState(() {
+            widget.entriesMap[widget.date] = newentry;
+          });
         }, icon: _getIconForEntry(widget.entriesMap[widget.date]?.value))
         : TextButton(
           onPressed: () {
@@ -97,7 +97,9 @@ class _EntryButtonState extends State<EntryButton> {
                         );
                         Navigator.pop(context);
                         await databaseService.insertEntry(newentry);
-                        widget.onUpdate();
+                        setState(() {
+                          widget.entriesMap[widget.date] = newentry;
+                        });
                       }, 
                       child: Text('OK')
                     ),
