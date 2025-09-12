@@ -54,27 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Habits'),
-        actions: [
-          IconButton(
-            // TODO: implement sorting
-            onPressed: () {}, 
-            tooltip: 'Sort',
-            icon: Icon(Icons.sort)
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 13),
-            child: IconButton(
-              // TODO: github heatmap like ui
-              onPressed: () {}, 
-              tooltip: 'graph view',
-              icon: Icon(Icons.view_agenda)
-            ),
-          )
-        ],
-        backgroundColor: Theme.of(context).colorScheme.surface,
-      ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
