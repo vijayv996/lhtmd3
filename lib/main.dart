@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/pages/habits_page.dart';
+import 'package:lhtmd3/pages/heatmap_habits_page.dart';
 import 'package:lhtmd3/pages/pomodoro_page.dart';
 import 'package:lhtmd3/pages/settings_page.dart';
 import 'dart:io';
 import 'package:lhtmd3/services/database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -20,7 +22,7 @@ void main() async {
   if(!userExists) {
     await databaseService.createDefaultUser();
   }
-  
+
   runApp(const MyApp());
 }
 
@@ -41,7 +43,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({
+    super.key
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -49,6 +53,36 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
+  Widget homePage = Habits();
+  
+  @override
+  void initState() {
+    super.initState();
+
+    homePagePreference();
+  }
+
+  void homePagePreference() async {
+    final SharedPreferencesWithCache prefsWithCache = 
+      await SharedPreferencesWithCache.create(
+        cacheOptions: const SharedPreferencesWithCacheOptions(
+          allowList: <String>{'commitView'},
+        ),
+      );
+    
+    if(prefsWithCache.getBool('commitView') == null) {
+      prefsWithCache.setBool('commitView', false);
+    }
+
+    Widget newHomePage = Habits();
+    if(prefsWithCache.getBool('commitView')!) {
+      newHomePage = HeatmapHabitsPage();
+    }
+
+    setState(() {
+      homePage = newHomePage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ]
       ),
       body: [
-        Habits(),
+        homePage,
         Pomodoro(),
         Settings(),
       ][currentPageIndex],
