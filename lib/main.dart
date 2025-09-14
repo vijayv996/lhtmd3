@@ -53,16 +53,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
-  Widget homePage = Habits();
+  bool isCommitView = false;
   
   @override
   void initState() {
     super.initState();
-
-    homePagePreference();
+    homePagePreferenceHelper();
   }
 
-  void homePagePreference() async {
+  void homePagePreferenceHelper() async {
+    // on first launch create commitView pref and sets it to false 
     final SharedPreferencesWithCache prefsWithCache = 
       await SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(
@@ -71,17 +71,18 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     
     if(prefsWithCache.getBool('commitView') == null) {
-      prefsWithCache.setBool('commitView', false);
+      prefsWithCache.setBool('commitView', isCommitView);
     }
 
-    Widget newHomePage = Habits();
-    if(prefsWithCache.getBool('commitView')!) {
-      newHomePage = HeatmapHabitsPage();
-    }
-
+    // no appbar the above code wont matter and the preference will be toggled
     setState(() {
-      homePage = newHomePage;
+      isCommitView = !isCommitView;
+      prefsWithCache.setBool('commitView', isCommitView);
     });
+  }
+
+  Widget _getCurrentHomePage() {
+    return isCommitView ? HeatmapHabitsPage(toggleHomePage: homePagePreferenceHelper,) : Habits(toggleHomePage: homePagePreferenceHelper,);
   }
 
   @override
@@ -96,26 +97,26 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         indicatorColor: Theme.of(context).colorScheme.primaryContainer,
         selectedIndex: currentPageIndex,
-        destinations: [
+        destinations: const [
           NavigationDestination(
             selectedIcon: Icon(Icons.check_box),
             icon: Icon(Icons.check_box_outlined),
-            label: 'Habits'
+            label: 'Habits',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.timer),
             icon: Icon(Icons.timer_outlined),
-            label: 'Pomodoro'
+            label: 'Pomodoro',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.settings_applications),
             icon: Icon(Icons.settings_applications_outlined),
-            label: 'Settings'
+            label: 'Settings',
           )
         ]
       ),
       body: [
-        homePage,
+        _getCurrentHomePage(),
         Pomodoro(),
         Settings(),
       ][currentPageIndex],

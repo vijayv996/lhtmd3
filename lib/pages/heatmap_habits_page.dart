@@ -5,7 +5,11 @@ import 'package:lhtmd3/util/date_util.dart';
 import 'package:lhtmd3/widgets/heatmap_tile.dart';
 
 class HeatmapHabitsPage extends StatefulWidget {
-  const HeatmapHabitsPage({super.key});
+  final VoidCallback toggleHomePage;
+  const HeatmapHabitsPage({
+    super.key,
+    required this.toggleHomePage,
+  });
 
   @override
   State<HeatmapHabitsPage> createState() => _HeatmapHabitsPageState();
@@ -41,7 +45,9 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
             padding: const EdgeInsets.only(right: 13),
             child: IconButton(
               // TODO: github heatmap like ui
-              onPressed: () {}, 
+              onPressed: () {
+                widget.toggleHomePage();
+              }, 
               tooltip: 'graph view',
               icon: Icon(Icons.view_agenda)
             ),

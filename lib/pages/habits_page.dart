@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:lhtmd3/pages/heatmap_habits_page.dart';
 import 'package:lhtmd3/widgets/date_tile.dart';
 import 'package:lhtmd3/widgets/habit_sheet.dart';
 import 'package:lhtmd3/widgets/habit_tile.dart';
 import 'package:lhtmd3/models/habit_with_entries.dart';
 import 'package:lhtmd3/services/database.dart';
 import 'package:lhtmd3/util/date_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Habits extends StatefulWidget {
-  const Habits({super.key});
+  final VoidCallback toggleHomePage;
+  const Habits({
+    super.key,
+    required this.toggleHomePage,
+  });
 
   @override
   State<Habits> createState() => _HabitsState();
@@ -70,9 +72,8 @@ class _HabitsState extends State<Habits> {
             padding: const EdgeInsets.only(right: 13),
             child: IconButton(
               // TODO: github heatmap like ui
-              onPressed: () async {
-                final prefsWithCache = await SharedPreferences.getInstance();
-                prefsWithCache.setBool('commitView', false);
+              onPressed: () {
+                widget.toggleHomePage();
               }, 
               tooltip: 'graph view',
               icon: Icon(Icons.view_agenda)
