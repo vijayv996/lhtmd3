@@ -44,7 +44,6 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
           Padding(
             padding: const EdgeInsets.only(right: 13),
             child: IconButton(
-              // TODO: github heatmap like ui
               onPressed: () {
                 widget.toggleHomePage();
               }, 
