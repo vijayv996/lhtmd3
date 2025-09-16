@@ -54,27 +54,29 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
   bool isCommitView = false;
-  
-  @override
-  void initState() {
-    super.initState();
-    homePagePreferenceHelper();
-  }
-
-  void homePagePreferenceHelper() async {
-    // on first launch create commitView pref and sets it to false 
-    final SharedPreferencesWithCache prefsWithCache = 
-      await SharedPreferencesWithCache.create(
+  final Future<SharedPreferencesWithCache> _prefsWithCache = 
+      SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(
           allowList: <String>{'commitView'},
         ),
       );
-    
-    if(prefsWithCache.getBool('commitView') == null) {
-      prefsWithCache.setBool('commitView', isCommitView);
-    }
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadHomePagePreferences();
+  }
 
-    // no appbar the above code wont matter and the preference will be toggled
+  void _loadHomePagePreferences() async {
+    final prefsWithCache = await _prefsWithCache;
+    setState(() {
+      isCommitView = prefsWithCache.getBool('commitView') ?? false;
+    });
+  }
+
+  void toggleHomePage() async {
+    final prefsWithCache = await _prefsWithCache;
+    
     setState(() {
       isCommitView = !isCommitView;
       prefsWithCache.setBool('commitView', isCommitView);
@@ -82,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getCurrentHomePage() {
-    return isCommitView ? HeatmapHabitsPage(toggleHomePage: homePagePreferenceHelper,) : Habits(toggleHomePage: homePagePreferenceHelper,);
+    return isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage,) : Habits(toggleHomePage: toggleHomePage,);
   }
 
   @override
