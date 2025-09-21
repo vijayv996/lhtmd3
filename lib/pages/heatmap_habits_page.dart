@@ -36,20 +36,11 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
         title: Text('Habits'),
         actions: [
           IconButton(
-            // TODO: implement sorting
-            onPressed: () {}, 
-            tooltip: 'Sort',
-            icon: Icon(Icons.sort)
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 13),
-            child: IconButton(
-              onPressed: () {
-                widget.toggleHomePage();
-              }, 
-              tooltip: 'graph view',
-              icon: Icon(Icons.view_agenda)
-            ),
+            onPressed: () {
+              widget.toggleHomePage();
+            }, 
+            tooltip: 'graph view',
+            icon: Icon(Icons.view_agenda)
           )
         ],
         backgroundColor: Theme.of(context).colorScheme.surface,
