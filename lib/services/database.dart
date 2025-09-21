@@ -37,6 +37,7 @@ class DatabaseService {
             habit_name TEXT NOT NULL,
             habit_type TEXT NOT NULL,
             measurement_unit TEXT,
+            habit_order INTEGER NOT NULL,
             FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
           )
           ''',
@@ -94,6 +95,8 @@ class DatabaseService {
   
   Future<void> insertHabit(Habit habit) async {
     final db = await database;
+    final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM habits'));
+    habit.habitOrder = count;
 
     await db.insert(
       'habits',
@@ -109,6 +112,7 @@ class DatabaseService {
       'habits',
       where: 'user_id = ?',
       whereArgs: [userId],
+      orderBy: 'habit_order',
     );
 
     return [
@@ -118,6 +122,7 @@ class DatabaseService {
             'habit_name': habitName as String,
             'habit_type': habitType as String,
             'measurement_unit': measurementUnit as String?,
+            'habit_order': habitOrder as int?,
           } in habitMaps)
         Habit(
           habitId: habitId,
@@ -125,6 +130,7 @@ class DatabaseService {
           habitName: habitName,
           habitType: HabitType.values.firstWhere((e) => e.toString().split('.').last == habitType),
           measurementUnit: measurementUnit,
+          habitOrder: habitOrder,
         ),
     ];
   }
@@ -207,4 +213,18 @@ class DatabaseService {
 
   Future<void> deleteDatabase() async =>
     databaseFactory.deleteDatabase(join(await getDatabasesPath(), 'lht.db'));
+
+  Future<void> updateHabitOrder(List<Habit> habits) async {
+    final db = await database;
+    final batch = db.batch();
+    for (int i = 0; i < habits.length; i++) {
+      batch.update(
+        'habits',
+        {'habit_order': i},
+        where: 'habit_id = ?',
+        whereArgs: [habits[i].habitId],
+      );
+    }
+    await batch.commit(noResult: true);
+  }
 }

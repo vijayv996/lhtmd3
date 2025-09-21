@@ -71,7 +71,6 @@ class _HabitsState extends State<Habits> {
           Padding(
             padding: const EdgeInsets.only(right: 13),
             child: IconButton(
-              // TODO: github heatmap like ui
               onPressed: () {
                 widget.toggleHomePage();
               }, 
@@ -95,18 +94,39 @@ class _HabitsState extends State<Habits> {
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return Text('No habits found.');
               } else {
-                return Column(
-                  children: snapshot.data!.map((habit) {
-                    return HabitTile(
-                      habitName: habit.habit.habitName,
-                      habitId: habit.habit.habitId!,
-                      habitType: habit.habit.habitType,
-                      dates: _dates,
-                      habitEntries: habit.entries,
-                      measurementUnits: habit.habit.measurementUnit,
-                      onUpdate: loadHabits,
+                final habits = snapshot.data!;
+                return ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: habits.length,
+                  buildDefaultDragHandles: false,
+                  itemBuilder: (context, index) {
+                    final habit = habits[index];
+                    return ReorderableDragStartListener(
+                      key: ValueKey(habit.habit.habitId),
+                      index: index,
+                      child: HabitTile(
+                        habitName: habit.habit.habitName, 
+                        habitId: habit.habit.habitId!, 
+                        habitType: habit.habit.habitType, 
+                        dates: _dates, 
+                        habitEntries: habit.entries, 
+                        measurementUnits: habit.habit.measurementUnit,
+                        onUpdate: loadHabits,
+                      ),
                     );
-                  }).toList(),
+                  },
+                  onReorder: (int oldIndex, int newIndex) async {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    final reorderedHabit = habits.removeAt(oldIndex);
+                    habits.insert(newIndex, reorderedHabit);
+                    await databaseService.updateHabitOrder(habits.map((h) => h.habit).toList());
+                    setState(() {
+                      _habitsList = Future.value(habits);
+                    });
+                  }
                 );
               }
             },

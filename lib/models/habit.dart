@@ -8,13 +8,15 @@ class Habit {
   final String habitName;
   final HabitType habitType;
   final String? measurementUnit;
+  int? habitOrder;
 
-  const Habit({
+  Habit({
     required this.userId,
     this.habitId,
     required this.habitName,
     required this.habitType,
     this.measurementUnit,
+    this.habitOrder,
   });
 
   Map<String, Object?> toMap() {
@@ -24,11 +26,12 @@ class Habit {
       'habit_name': habitName,
       'habit_type': habitType.name,
       'measurement_unit': measurementUnit,
+      'habit_order': habitOrder,
     };
   }
 
   @override
   String toString() {
-    return 'Habit(userId: $userId, habitId: $habitId, habitName: $habitName, habitType: $habitType, measurementUnit: $measurementUnit)';
+    return 'Habit(userId: $userId, habitId: $habitId, habitName: $habitName, habitType: $habitType, measurementUnit: $measurementUnit, habit_order: $habitOrder)';
   }
 }
