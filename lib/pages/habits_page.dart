@@ -86,27 +86,26 @@ class _HabitsState extends State<Habits> {
                 return Text('No habits found.');
               } else {
                 final habits = snapshot.data!;
-                return ReorderableListView.builder(
+                return ReorderableListView(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: habits.length,
                   buildDefaultDragHandles: false,
-                  itemBuilder: (context, index) {
-                    final habit = habits[index];
-                    return ReorderableDragStartListener(
-                      key: ValueKey(habit.habit.habitId),
-                      index: index,
-                      child: HabitTile(
-                        habitName: habit.habit.habitName, 
-                        habitId: habit.habit.habitId!, 
-                        habitType: habit.habit.habitType, 
-                        dates: _dates, 
-                        habitEntries: habit.entries, 
-                        measurementUnits: habit.habit.measurementUnit,
-                        onUpdate: loadHabits,
+                  children: <Widget>[
+                    for (int index = 0; index < habits.length; index += 1)
+                      ReorderableDragStartListener(
+                        key: ValueKey(habits[index].habit.habitId),
+                        index: index,
+                        child: HabitTile(
+                          habitName: habits[index].habit.habitName,
+                          habitId: habits[index].habit.habitId!,
+                          habitType: habits[index].habit.habitType,
+                          dates: _dates,
+                          habitEntries: habits[index].entries,
+                          measurementUnits: habits[index].habit.measurementUnit,
+                          onUpdate: loadHabits,
+                        ),
                       ),
-                    );
-                  },
+                  ],
                   onReorder: (int oldIndex, int newIndex) async {
                     if (oldIndex < newIndex) {
                       newIndex -= 1;
