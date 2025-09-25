@@ -9,15 +9,17 @@ class EntryButton extends StatefulWidget {
     required this.habitType,
     required this.habitId,
     this. measurementUnits,
-    required this.entriesMap,
+    required this.entry,
     required this.date,
+    required this.onEntryUpdate,
   });
 
   final HabitType habitType;
   final int habitId;
   final String? measurementUnits;
-  final Map<DateTime, HabitEntry> entriesMap;
+  final HabitEntry? entry;
   final DateTime date;
+  final Function(HabitEntry) onEntryUpdate;
 
   @override
   State<EntryButton> createState() => _EntryButtonState();
@@ -40,7 +42,7 @@ class _EntryButtonState extends State<EntryButton> {
       child: widget.habitType == HabitType.yesNo
         ? IconButton(onPressed: () async {
           final databaseService = DatabaseService();
-          final existingEntry = widget.entriesMap[widget.date];
+          final existingEntry = widget.entry;
           double newValue;
           if(existingEntry != null) {
             if(existingEntry.value == 0) {
@@ -54,16 +56,14 @@ class _EntryButtonState extends State<EntryButton> {
             newValue = 1;
           }
           final newentry = HabitEntry(
-            entryId: widget.entriesMap[widget.date]?.entryId,
-            habitId: widget.habitId, 
-            entryDate: widget.date, 
+            entryId: widget.entry?.entryId,
+            habitId: widget.habitId,
+            entryDate: widget.date,
             value: newValue
           );
           await databaseService.insertEntry(newentry);
-          setState(() {
-            widget.entriesMap[widget.date] = newentry;
-          });
-        }, icon: _getIconForEntry(widget.entriesMap[widget.date]?.value))
+          widget.onEntryUpdate(newentry);
+        }, icon: _getIconForEntry(widget.entry?.value))
         : TextButton(
           onPressed: () {
             final databaseService = DatabaseService();
@@ -90,17 +90,15 @@ class _EntryButtonState extends State<EntryButton> {
                     FilledButton(
                       onPressed: () async {
                         final newentry = HabitEntry(
-                          entryId: widget.entriesMap[widget.date]?.entryId,
+                          entryId: widget.entry?.entryId,
                           habitId: widget.habitId,
                           entryDate: widget.date,
                           value: double.parse(_valueController.text),
                         );
                         Navigator.pop(context);
                         await databaseService.insertEntry(newentry);
-                        setState(() {
-                          widget.entriesMap[widget.date] = newentry;
-                        });
-                      }, 
+                        widget.onEntryUpdate(newentry);
+                      },
                       child: Text('OK')
                     ),
                   ],
@@ -108,7 +106,7 @@ class _EntryButtonState extends State<EntryButton> {
               },
             );
           }, 
-          child: widget.entriesMap[widget.date]?.value == null 
+          child: widget.entry?.value == null
           ? FittedBox(
             child: Text(
               '0\n${widget.measurementUnits}',
@@ -122,7 +120,7 @@ class _EntryButtonState extends State<EntryButton> {
           )
           : FittedBox(
             child: Text(
-              '${widget.entriesMap[widget.date]!.value.toString()}\n${widget.measurementUnits}',
+              '${widget.entry!.value.toString()}\n${widget.measurementUnits}',
               textAlign: TextAlign.center,
               softWrap: false,
               style: TextStyle(

@@ -31,12 +31,34 @@ class HabitTile extends StatefulWidget {
 
 
 class _HabitTileState extends State<HabitTile> {
+  late Map<DateTime, HabitEntry> _entriesMap;
+
   @override
-  Widget build(BuildContext context) {
-    final entriesMap = {
+  void initState() {
+    super.initState();
+    _entriesMap = {
       for(var entry in widget.habitEntries) DateUtil.stripTime(entry.entryDate): entry
     };
+  }
 
+  @override
+  void didUpdateWidget(covariant HabitTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.habitEntries != oldWidget.habitEntries) {
+      _entriesMap = {
+        for(var entry in widget.habitEntries) DateUtil.stripTime(entry.entryDate): entry
+      };
+    }
+  }
+
+  void _updateEntry(HabitEntry newEntry) {
+    setState(() {
+      _entriesMap[DateUtil.stripTime(newEntry.entryDate)] = newEntry;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return ListTile(
@@ -45,7 +67,7 @@ class _HabitTileState extends State<HabitTile> {
           leading: Icon(Icons.incomplete_circle),
           onTap: () {
             Navigator.push(
-              context, 
+              context,
               MaterialPageRoute(
                 builder: (context) => Stats(habitEntries: widget.habitEntries)
               )
@@ -55,11 +77,12 @@ class _HabitTileState extends State<HabitTile> {
             children: [
               for(final date in widget.dates)
                 EntryButton(
-                  habitType: widget.habitType, 
-                  habitId: widget.habitId, 
+                  habitType: widget.habitType,
+                  habitId: widget.habitId,
                   measurementUnits: widget.measurementUnits,
-                  entriesMap: entriesMap, 
-                  date: date
+                  entry: _entriesMap[date],
+                  date: date,
+                  onEntryUpdate: _updateEntry,
                 ),
             ],
           ),
