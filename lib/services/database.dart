@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
@@ -6,6 +7,8 @@ import 'package:lhtmd3/models/habit_with_entries.dart';
 import 'package:lhtmd3/models/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -211,9 +214,6 @@ class DatabaseService {
     return habitsWithEntries;
   }
 
-  Future<void> deleteDatabase() async =>
-    databaseFactory.deleteDatabase(join(await getDatabasesPath(), 'lht.db'));
-
   Future<void> updateHabitOrder(List<Habit> habits) async {
     final db = await database;
     final batch = db.batch();
@@ -226,5 +226,59 @@ class DatabaseService {
       );
     }
     await batch.commit(noResult: true);
+  }
+  
+  Future<void> deleteDatabase() async =>
+    databaseFactory.deleteDatabase(join(await getDatabasesPath(), 'lht.db'));
+
+  Future<void> backupDatabase() async {
+    final dbPath = join(await getDatabasesPath(), 'lht.db');
+    final file = File(dbPath);
+
+    if(!await file.exists()) return;
+
+    if(Platform.isAndroid || Platform.isIOS) {
+      await Share.shareXFiles([XFile(dbPath)], text: 'Database Backup');
+    } else {
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Database Backup',
+        fileName: 'lht_backup.db',
+        type: FileType.custom,
+        allowedExtensions: ['db'],
+      );
+      if(outputFile != null) {
+        await file.copy(outputFile);
+      }
+    }
+  }
+
+  Future<void> restoreDatabase() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['db'],
+    );
+
+    if(result == null) return;
+
+    final file = File(result.files.single.path!);
+    if(await file.exists()) {
+      // Close current database
+      if(_database != null) {
+        await _database!.close();
+        _database = null;
+      }
+
+      // Delete existing db
+      final dbPath = join(await getDatabasesPath(), 'lht.db');
+      final existingFile = File(dbPath);
+      if(await existingFile.exists()) {
+        await existingFile.delete();
+      }
+
+      // Copy new file
+      await file.copy(dbPath);
+      
+      // The next access to database will reinitialize it
+    }
   }
 }
