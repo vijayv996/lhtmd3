@@ -62,6 +62,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           allowList: <String>{'commitView'},
         ),
       );
+
+  late final List<Widget> _pages;
   
   @override
   void initState() {
@@ -69,6 +71,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     _pomodoroController = AnalogTimerController(duration: Duration(minutes: 25));
     _pomodoroController.initializeAnimation(this);
     _loadHomePagePreferences();
+
+    _pages = [
+      isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage),
+      Pomodoro(controller: _pomodoroController),
+      Settings(),
+    ];
   }
 
   void _loadHomePagePreferences() async {
@@ -76,6 +84,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     setState(() {
       isCommitView = prefsWithCache.getBool('commitView') ?? false;
     });
+    // Rebuilds the page if view changes
+    _pages[0] = isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage);
   }
 
   void toggleHomePage() async {
@@ -84,11 +94,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     setState(() {
       isCommitView = !isCommitView;
       prefsWithCache.setBool('commitView', isCommitView);
+      _pages[0] = isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage);
     });
-  }
-
-  Widget _getCurrentHomePage() {
-    return isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage,) : Habits(toggleHomePage: toggleHomePage,);
   }
 
   @override
@@ -127,11 +134,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           )
         ]
       ),
-      body: [
-        _getCurrentHomePage(),
-        Pomodoro(controller: _pomodoroController),
-        Settings(),
-      ][currentPageIndex],
+      body: IndexedStack(
+        index: currentPageIndex,
+        children: _pages,
+      ),
       backgroundColor: theme.scaffoldBackgroundColor,
     );
   }
