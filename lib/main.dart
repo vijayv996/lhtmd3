@@ -1,3 +1,4 @@
+import 'package:analog_timer/analog_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/pages/habits_page.dart';
 import 'package:lhtmd3/pages/heatmap_habits_page.dart';
@@ -51,10 +52,11 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int currentPageIndex = 0;
   bool isCommitView = false;
-  final Future<SharedPreferencesWithCache> _prefsWithCache = 
+  late AnalogTimerController _pomodoroController;
+  final Future<SharedPreferencesWithCache> _prefsWithCache =
       SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(
           allowList: <String>{'commitView'},
@@ -64,6 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _pomodoroController = AnalogTimerController(duration: Duration(minutes: 25));
+    _pomodoroController.initializeAnimation(this);
     _loadHomePagePreferences();
   }
 
@@ -85,6 +89,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _getCurrentHomePage() {
     return isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage,) : Habits(toggleHomePage: toggleHomePage,);
+  }
+
+  @override
+  void dispose() {
+    _pomodoroController.dispose();
+    super.dispose();
   }
 
   @override
@@ -119,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: [
         _getCurrentHomePage(),
-        Pomodoro(),
+        Pomodoro(controller: _pomodoroController),
         Settings(),
       ][currentPageIndex],
       backgroundColor: theme.scaffoldBackgroundColor,
