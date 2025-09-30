@@ -54,17 +54,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
   bool isCommitView = false;
-  final Future<SharedPreferencesWithCache> _prefsWithCache = 
+  final Future<SharedPreferencesWithCache> _prefsWithCache =
       SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(
           allowList: <String>{'commitView'},
         ),
       );
+
+  late final List<Widget> _pages;
   
   @override
   void initState() {
     super.initState();
     _loadHomePagePreferences();
+
+    _pages = [
+      isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage),
+      Pomodoro(),
+      Settings(),
+    ];
   }
 
   void _loadHomePagePreferences() async {
@@ -72,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       isCommitView = prefsWithCache.getBool('commitView') ?? false;
     });
+    // Rebuilds the page if view changes
+    _pages[0] = isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage);
   }
 
   void toggleHomePage() async {
@@ -80,11 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       isCommitView = !isCommitView;
       prefsWithCache.setBool('commitView', isCommitView);
+      _pages[0] = isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage) : Habits(toggleHomePage: toggleHomePage);
     });
-  }
-
-  Widget _getCurrentHomePage() {
-    return isCommitView ? HeatmapHabitsPage(toggleHomePage: toggleHomePage,) : Habits(toggleHomePage: toggleHomePage,);
   }
 
   @override
@@ -117,11 +124,10 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ]
       ),
-      body: [
-        _getCurrentHomePage(),
-        Pomodoro(),
-        Settings(),
-      ][currentPageIndex],
+      body: IndexedStack(
+        index: currentPageIndex,
+        children: _pages,
+      ),
       backgroundColor: theme.scaffoldBackgroundColor,
     );
   }
