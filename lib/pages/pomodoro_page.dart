@@ -31,9 +31,11 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
   }
 
   void _resetPomodoro() {
-    _currentState = PomodoroState.focus;
-    _pomodoroCount = 0;
-    _controller.reset(_focusDuration);
+    setState(() {
+      _currentState = PomodoroState.focus;
+      _pomodoroCount = 0;
+      _controller.reset(_focusDuration);
+    });
   }
 
   void _nextPomodoro() {
@@ -72,7 +74,10 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
               _currentState == PomodoroState.focus
                 ? 'Focus'
                 : 'Break',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: Theme.of(context).textTheme.headlineLarge?.fontSize,
+              ),
             ),
             SizedBox(height: 48,),
             AnimatedBuilder(
@@ -89,33 +94,52 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
             ),
             SizedBox(height: 48),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 10,
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    if(_controller.isRunning) {
-                      _controller.pause();
-                    } else if(_controller.isPaused) {
-                      _controller.resume();
-                    } else {
-                      _controller.start();
-                    }
+                    setState(() {
+                      if(_controller.isRunning) {
+                        _controller.pause();
+                      } else if(_controller.isPaused) {
+                        _controller.resume();
+                      } else {
+                        _controller.start();
+                      }
+                    });
                   },
-                  child: Text(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(130, 80),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(Radius.circular(18))
+                    ),
+                  ),
+                  child: Icon(
                     _controller.isRunning
-                        ? 'Pause'
-                        : _controller.isPaused
-                        ? 'Resume'
-                        : 'Start',
+                      ? Icons.pause
+                      : Icons.play_arrow,
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: _resetPomodoro,
-                  child: const Text('Reset'),
+                  onPressed: _nextPomodoro,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(80, 80),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(Radius.circular(18))
+                    ),
+                  ),
+                  child: const Icon(Icons.skip_next, size: 22,),
                 ),
                 ElevatedButton(
-                  onPressed: _nextPomodoro,
-                  child: const Text('Skip'),
+                  onPressed: _resetPomodoro,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(80, 80),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(Radius.circular(18))
+                    ),
+                  ),
+                  child: const Icon(Icons.refresh, size: 22,),
                 ),
               ],
             ),
