@@ -1,5 +1,7 @@
 import 'package:analog_timer/analog_timer.dart';
 import 'package:flutter/material.dart';
+import 'package:lhtmd3/models/pomo_entry.dart';
+import 'package:lhtmd3/services/database.dart';
 
 enum PomodoroState { focus, shortBreak, longBreak }
 
@@ -10,13 +12,12 @@ class Pomodoro extends StatefulWidget {
   State<Pomodoro> createState() => _PomodoroState();
 }
 
-// TODO: add pomodoro tracking
-
 class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
   late AnalogTimerController _controller;
 
   PomodoroState _currentState = PomodoroState.focus;
   int _pomodoroCount = 0;
+  DateTime _startTime = DateTime.now();
 
   static const Duration _focusDuration = Duration(minutes: 25);
   static const Duration _shortBreakDuration = Duration(minutes: 5);
@@ -27,7 +28,16 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
     super.initState();
     _controller = AnalogTimerController(duration: _focusDuration);
     _controller.initializeAnimation(this);
-    _controller.onExpired = _nextPomodoro;
+    _controller.onExpired = () async {
+      _nextPomodoro();
+      final databaseService = DatabaseService();
+      final pomoEntry = PomoEntry(
+        startTime: _startTime,
+        endTime: DateTime.now(), 
+        duration: 25,
+      );
+      await databaseService.insertPomodoro(pomoEntry);
+    };
   }
 
   void _resetPomodoro() {
@@ -39,19 +49,21 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
   }
 
   void _nextPomodoro() {
-    if(_currentState == PomodoroState.focus) {
-      _pomodoroCount++;
-      if(_pomodoroCount > 0 && _pomodoroCount % 4 == 0) {
-        _currentState = PomodoroState.longBreak;
-        _controller.reset(_longBreakDuration);
+    setState(() {
+      if(_currentState == PomodoroState.focus) {
+        _pomodoroCount++;
+        if(_pomodoroCount > 0 && _pomodoroCount % 4 == 0) {
+          _currentState = PomodoroState.longBreak;
+          _controller.reset(_longBreakDuration);
+        } else {
+          _currentState = PomodoroState.shortBreak;
+          _controller.reset(_shortBreakDuration);
+        }
       } else {
-        _currentState = PomodoroState.shortBreak;
-        _controller.reset(_shortBreakDuration);
+        _currentState = PomodoroState.focus;
+        _controller.reset(_focusDuration);
       }
-    } else {
-      _currentState = PomodoroState.focus;
-      _controller.reset(_focusDuration);
-    }
+    });
   }
 
   @override
@@ -88,6 +100,7 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                   isRunning: _controller.isRunning,
                   animationValue: _controller.animationValue,
                   remainingTimeText: _controller.formattedTime,
+                  direction: AnalogTimerDirection.antiClockwise,
                   size: 250,
                 );
               },
@@ -106,6 +119,7 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                         _controller.resume();
                       } else {
                         _controller.start();
+                        _startTime = DateTime.now();
                       }
                     });
                   },

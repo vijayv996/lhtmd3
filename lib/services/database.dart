@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/models/habit_with_entries.dart';
+import 'package:lhtmd3/models/pomo_entry.dart';
 import 'package:lhtmd3/models/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -55,7 +56,17 @@ class DatabaseService {
             UNIQUE(habit_id, entry_date)
             FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE
           )
+          ''',
+        );
+        await db.execute(
           '''
+          CREATE TABLE pomodoro(
+            session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            start_time INTEGER NOT NULL,
+            end_time INTEGER NOT NULL,
+            duration INTEGER NOT NULL
+          )
+          ''',
         );
       },
       version: 1,
@@ -226,6 +237,15 @@ class DatabaseService {
       );
     }
     await batch.commit(noResult: true);
+  }
+
+  Future<void> insertPomodoro(PomoEntry entry) async {
+    final db = await database;
+
+    await db.insert(
+      'pomodoro', 
+      entry.toMap()
+    );
   }
   
   Future<void> deleteDatabase() async =>
