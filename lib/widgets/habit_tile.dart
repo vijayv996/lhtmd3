@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/util/date_util.dart';
-import 'package:lhtmd3/pages/stats_page.dart';
+import 'package:lhtmd3/pages/habit_stats.dart';
 import 'package:lhtmd3/widgets/entry_button.dart';
 
 class HabitTile extends StatefulWidget {
@@ -69,7 +69,7 @@ class _HabitTileState extends State<HabitTile> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => Stats(habitEntries: widget.habitEntries)
+                builder: (context) => HabitStats(habitEntries: widget.habitEntries)
               )
             );
           },

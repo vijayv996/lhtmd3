@@ -4,10 +4,10 @@ import 'package:lhtmd3/util/date_util.dart';
 import 'package:lhtmd3/widgets/heat_map_widget.dart';
 
 
-class Stats extends StatelessWidget {
+class HabitStats extends StatelessWidget {
   final List<HabitEntry> habitEntries;
 
-  const Stats({
+  const HabitStats({
     super.key,
     required this.habitEntries,
   });
