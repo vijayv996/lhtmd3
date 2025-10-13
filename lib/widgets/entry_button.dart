@@ -50,7 +50,7 @@ class _EntryButtonState extends State<EntryButton> {
             } else if(existingEntry.value == 1) {
               newValue = 2;
             } else {
-              newValue = 1;
+              newValue = 0;
             }
           } else {
             newValue = 1;
