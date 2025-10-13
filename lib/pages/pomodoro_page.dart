@@ -1,6 +1,7 @@
 import 'package:analog_timer/analog_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/models/pomo_entry.dart';
+import 'package:lhtmd3/pages/pomodoro_stats.dart';
 import 'package:lhtmd3/services/database.dart';
 
 enum PomodoroState { focus, shortBreak, longBreak }
@@ -77,6 +78,19 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text('Pomodoro'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PomodoroStats(),
+                )
+              );
+            }, 
+            icon: Icon(Icons.analytics)
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -125,9 +139,13 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(130, 80),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.all(Radius.circular(18))
-                    ),
+                    shape: _controller.isRunning
+                      ? RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(Radius.circular(18))
+                      )
+                      : RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(Radius.circular(50))
+                      )
                   ),
                   child: Icon(
                     _controller.isRunning

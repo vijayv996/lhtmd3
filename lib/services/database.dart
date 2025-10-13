@@ -5,7 +5,9 @@ import 'package:lhtmd3/models/habit.dart';
 import 'package:lhtmd3/models/habit_entry.dart';
 import 'package:lhtmd3/models/habit_with_entries.dart';
 import 'package:lhtmd3/models/pomo_entry.dart';
+import 'package:lhtmd3/models/pomo_stat.dart';
 import 'package:lhtmd3/models/user.dart';
+import 'package:lhtmd3/util/date_util.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:file_picker/file_picker.dart';
@@ -245,6 +247,46 @@ class DatabaseService {
     await db.insert(
       'pomodoro', 
       entry.toMap()
+    );
+  }
+
+  Future<PomoStat> getPomoStats() async {
+    final db = await database;
+
+    final todayDate = DateUtil.stripTime(DateTime.now());
+    final yesterdayDate = todayDate.subtract(const Duration(days: 1));
+    final todayMs = todayDate.millisecondsSinceEpoch;
+    final yesterdayMs = yesterdayDate.millisecondsSinceEpoch;
+    final sql = '''
+      SELECT
+        COUNT(*) AS allPomos,
+        COALESCE(SUM(duration), 0) AS allDuration,
+        SUM(CASE WHEN start_time >= ? THEN 1 ELSE 0 END) AS todayPomo,
+        COALESCE(SUM(CASE WHEN start_time >= ? THEN duration ELSE 0 END), 0) AS todayDuration,
+        SUM(CASE WHEN start_time >= ? AND start_time < ? THEN 1 ELSE 0 END) AS yesterdayPomo,
+        COALESCE(SUM(CASE WHEN start_time >= ? AND start_time < ? THEN duration ELSE 0 END), 0) AS yesterdayDuration
+      FROM pomodoro
+    ''';
+    final List<Map<String, Object?>> res = await db.rawQuery(sql,
+      [
+        todayMs,
+        todayMs,
+        yesterdayMs,
+        todayMs,
+        yesterdayMs,
+        todayMs,
+      ]
+    );
+    final stats = res.first;
+    return (
+      PomoStat(
+        todayPomo: stats['todayPomo'] as int,
+        todayDuration: stats['todayDuration'] as int,
+        yesterdayPomo: stats['yesterdayPomo'] as int,
+        yesterdayDuration: stats['yesterdayDuration'] as int,
+        allPomos: stats['allPomos'] as int,
+        allDuration:stats['allDuration'] as int
+      )
     );
   }
   
