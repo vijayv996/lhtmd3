@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lhtmd3/models/pomo_entry.dart';
 import 'package:lhtmd3/pages/pomodoro_stats.dart';
 import 'package:lhtmd3/services/database.dart';
+import 'package:lhtmd3/widgets/pomo_habit_selector.dart';
 
 enum PomodoroState { focus, shortBreak, longBreak }
 
@@ -19,8 +20,10 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
   PomodoroState _currentState = PomodoroState.focus;
   int _pomodoroCount = 0;
   DateTime _startTime = DateTime.now();
+  String? _selectedPomoHabit;
+  int? _habitId;
 
-  static const Duration _focusDuration = Duration(minutes: 25);
+  static const Duration _focusDuration = Duration(minutes: 1);
   static const Duration _shortBreakDuration = Duration(minutes: 5);
   static const Duration _longBreakDuration = Duration(minutes: 20);
 
@@ -36,6 +39,8 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
         startTime: _startTime,
         endTime: DateTime.now(), 
         duration: 25,
+        focusName: _selectedPomoHabit ?? 'focus',
+        habitId: _habitId,
       );
       await databaseService.insertPomodoro(pomoEntry);
     };
@@ -118,6 +123,27 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                   size: 250,
                 );
               },
+            ),
+            SizedBox(height: 48),
+            TextButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context, 
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  builder: (BuildContext context) {
+                    return PomoHabitSelector(
+                      onHabitSelected: (habitName, int? habitId) {
+                        setState(() {
+                          _selectedPomoHabit = "$habitName >";
+                          _habitId = habitId;
+                        });
+                      },
+                    );
+                  },
+                );
+              }, 
+              child: Text(_selectedPomoHabit ?? 'focus >')
             ),
             SizedBox(height: 48),
             Row(

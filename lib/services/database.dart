@@ -66,7 +66,9 @@ class DatabaseService {
             session_id INTEGER PRIMARY KEY AUTOINCREMENT,
             start_time INTEGER NOT NULL,
             end_time INTEGER NOT NULL,
-            duration INTEGER NOT NULL
+            duration INTEGER NOT NULL,
+            focus_name TEXT NOT NULL,
+            habit_id INTEGER,
           )
           ''',
         );
