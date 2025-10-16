@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/services/database.dart';
+import 'package:lhtmd3/widgets/pomo_bar_chart.dart';
 import 'package:lhtmd3/widgets/stat_card.dart';
 
 class PomodoroStats extends StatelessWidget {
@@ -72,8 +73,9 @@ class PomodoroStats extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16,),
+                  PomoBarChart(),
                   // TODO: add a heatmap
-                  // TODO: add a category graph
                 ],
               ),
             );
