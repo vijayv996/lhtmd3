@@ -45,6 +45,8 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
         ],
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
+      // TODO: add checking(ticking) functionality
+      // TODO: add streak icon
       body: FutureBuilder<List<HabitWithEntries>>(
         future: _habitsList, 
         builder: (context, snapshot) {

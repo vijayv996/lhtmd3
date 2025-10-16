@@ -136,7 +136,7 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                     return PomoHabitSelector(
                       onHabitSelected: (habitName, int? habitId) {
                         setState(() {
-                          _selectedPomoHabit = "$habitName >";
+                          _selectedPomoHabit = habitName;
                           _habitId = habitId;
                         });
                       },
@@ -144,7 +144,11 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
                   },
                 );
               }, 
-              child: Text(_selectedPomoHabit ?? 'focus >')
+              child: Text(
+                _selectedPomoHabit != null
+                  ? "$_selectedPomoHabit >"
+                  : "focus >"
+              )
             ),
             SizedBox(height: 48),
             Row(
