@@ -23,7 +23,7 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
   String? _selectedPomoHabit;
   int? _habitId;
 
-  static const Duration _focusDuration = Duration(minutes: 1);
+  static const Duration _focusDuration = Duration(minutes: 25);
   static const Duration _shortBreakDuration = Duration(minutes: 5);
   static const Duration _longBreakDuration = Duration(minutes: 20);
 
@@ -34,6 +34,7 @@ class _PomodoroState extends State<Pomodoro> with TickerProviderStateMixin {
     _controller.initializeAnimation(this);
     _controller.onExpired = () async {
       _nextPomodoro();
+      if(_currentState == PomodoroState.focus) return;
       final databaseService = DatabaseService();
       final pomoEntry = PomoEntry(
         startTime: _startTime,

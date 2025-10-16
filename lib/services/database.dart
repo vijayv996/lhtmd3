@@ -68,7 +68,7 @@ class DatabaseService {
             end_time INTEGER NOT NULL,
             duration INTEGER NOT NULL,
             focus_name TEXT NOT NULL,
-            habit_id INTEGER,
+            habit_id INTEGER
           )
           ''',
         );
@@ -110,7 +110,7 @@ class DatabaseService {
         User(userId: userId, username: username),
     ];
   }
-  
+
   Future<void> insertHabit(Habit habit) async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM habits'));
@@ -155,7 +155,7 @@ class DatabaseService {
 
   Future<void> insertEntry(HabitEntry entry) async {
     final db = await database;
-    
+
     await db.insert(
       'habit_entries',
       entry.toMap(),
@@ -171,7 +171,7 @@ class DatabaseService {
       whereArgs: [habitId, startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
       orderBy: 'entry_date DESC',
     );
-    
+
     return [
       for(final {
         'entry_id': entryId as int,
@@ -202,10 +202,10 @@ class DatabaseService {
         'habit_id': habitId as int,
         'entry_date': entryDate as int,
         'value': value as double,
-      } in entryMap) 
+      } in entryMap)
       HabitEntry(
-        habitId: habitId, 
-        entryDate: DateTime.fromMillisecondsSinceEpoch(entryDate), 
+        habitId: habitId,
+        entryDate: DateTime.fromMillisecondsSinceEpoch(entryDate),
         value: value
       )
     ];
@@ -247,7 +247,7 @@ class DatabaseService {
     final db = await database;
 
     await db.insert(
-      'pomodoro', 
+      'pomodoro',
       entry.toMap()
     );
   }
@@ -291,7 +291,7 @@ class DatabaseService {
       )
     );
   }
-  
+
   Future<void> deleteDatabase() async =>
     databaseFactory.deleteDatabase(join(await getDatabasesPath(), 'lht.db'));
 
@@ -341,7 +341,7 @@ class DatabaseService {
 
       // Copy new file
       await file.copy(dbPath);
-      
+
       // The next access to database will reinitialize it
     }
   }
