@@ -73,8 +73,7 @@ class PomodoroStats extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16,),
-                  PomoBarChart(),
+                  PomoBarChart(chartData: pomos.chartData,),
                   // TODO: add a heatmap
                 ],
               ),

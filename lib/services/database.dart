@@ -259,13 +259,15 @@ class DatabaseService {
     final yesterdayDate = todayDate.subtract(const Duration(days: 1));
     final todayMs = todayDate.millisecondsSinceEpoch;
     final yesterdayMs = yesterdayDate.millisecondsSinceEpoch;
+    final lastWeek = todayDate.subtract(const Duration(days: 7));
+    final lastWeekMs = lastWeek.millisecondsSinceEpoch;
     final sql = '''
       SELECT
         COUNT(*) AS allPomos,
         COALESCE(SUM(duration), 0) AS allDuration,
-        SUM(CASE WHEN start_time >= ? THEN 1 ELSE 0 END) AS todayPomo,
+        COALESCE(SUM(CASE WHEN start_time >= ? THEN 1 ELSE 0 END), 0) AS todayPomo,
         COALESCE(SUM(CASE WHEN start_time >= ? THEN duration ELSE 0 END), 0) AS todayDuration,
-        SUM(CASE WHEN start_time >= ? AND start_time < ? THEN 1 ELSE 0 END) AS yesterdayPomo,
+        COALESCE(SUM(CASE WHEN start_time >= ? AND start_time < ? THEN 1 ELSE 0 END), 0) AS yesterdayPomo,
         COALESCE(SUM(CASE WHEN start_time >= ? AND start_time < ? THEN duration ELSE 0 END), 0) AS yesterdayDuration
       FROM pomodoro
     ''';
@@ -280,6 +282,16 @@ class DatabaseService {
       ]
     );
     final stats = res.first;
+
+    final chartSql = 'SELECT focus_name, SUM(duration) as duration FROM pomodoro WHERE start_time >= ? GROUP BY focus_name';
+    final chartRes = await db.rawQuery(chartSql, [lastWeekMs]);
+
+    Map<String, double> chartData = {};
+    for (final row in chartRes) {
+      double hours = ((row['duration'] as int) / 60.0);
+      chartData[row['focus_name'] as String] = hours;
+    }
+
     return (
       PomoStat(
         todayPomo: stats['todayPomo'] as int,
@@ -287,7 +299,8 @@ class DatabaseService {
         yesterdayPomo: stats['yesterdayPomo'] as int,
         yesterdayDuration: stats['yesterdayDuration'] as int,
         allPomos: stats['allPomos'] as int,
-        allDuration:stats['allDuration'] as int
+        allDuration:stats['allDuration'] as int,
+        chartData: chartData
       )
     );
   }

@@ -5,6 +5,7 @@ class PomoStat {
   final int yesterdayDuration;
   final int allPomos;
   final int allDuration;
+  final Map<String, double> chartData;
 
   PomoStat({
     required this.todayPomo,
@@ -13,5 +14,6 @@ class PomoStat {
     required this.yesterdayDuration,
     required this.allPomos,
     required this.allDuration,
+    required this.chartData,
   });
 }
