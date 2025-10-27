@@ -25,8 +25,6 @@ class PomoBarChart extends StatelessWidget {
               gridData: const FlGridData(show: false),
               alignment: BarChartAlignment.spaceAround,
             ),
-            duration: Duration(milliseconds: 1000),
-            curve: Curves.bounceIn,
           ),
         ),
       ),
@@ -41,7 +39,7 @@ class PomoBarChart extends StatelessWidget {
         BarChartGroupData(
           x: i,
           barRods: [
-            BarChartRodData(toY: items[i].value, color: primaryColor),
+            BarChartRodData(toY: items[i].value, color: primaryColor, width: 20),
           ],
           showingTooltipIndicators: [0],
         ),

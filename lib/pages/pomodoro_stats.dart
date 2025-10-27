@@ -29,6 +29,23 @@ class PomodoroStats extends StatelessWidget {
             final yesterdayPomoDiff = (pomos.todayPomo - pomos.yesterdayPomo).abs();
             final yesterdayDurationDiff = (todayMinutes - pomos.yesterdayDuration).abs();
             final isTodayLower = (pomos.todayPomo - pomos.yesterdayPomo) < 0;
+
+            final screenWidth = MediaQuery.of(context).size.width;
+            const barWidth = 20;
+            const barSpacing = 45;
+            final chartWidth = (pomos.chartData.length * (barWidth + barSpacing)).toDouble();
+            final isScrollable = chartWidth > screenWidth;
+            Widget chartWidget = isScrollable 
+              ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    height: 300,
+                    width: chartWidth,
+                    child: PomoBarChart(chartData: pomos.chartData,)
+                  ),
+                )
+              : PomoBarChart(chartData: pomos.chartData,);
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -73,7 +90,7 @@ class PomodoroStats extends StatelessWidget {
                       ),
                     ],
                   ),
-                  PomoBarChart(chartData: pomos.chartData,),
+                  chartWidget,
                   // TODO: add a heatmap
                 ],
               ),
