@@ -292,6 +292,17 @@ class DatabaseService {
       chartData[row['focus_name'] as String] = hours;
     }
 
+    final heatmapSql = "SELECT strftime('%Y-%m-%d', start_time / 1000, 'unixepoch') as date_str, COUNT(*) as count FROM pomodoro GROUP BY date_str";
+    final heatmapRes = await db.rawQuery(heatmapSql);
+
+    Map<DateTime, int> heatmapData = {};
+    for (final row in heatmapRes) {
+      final dateStr = row['date_str'] as String;
+      final count = row['count'] as int;
+      final date = DateTime.parse(dateStr);
+      heatmapData[date] = count;
+    }
+
     return (
       PomoStat(
         todayPomo: stats['todayPomo'] as int,
@@ -300,7 +311,8 @@ class DatabaseService {
         yesterdayDuration: stats['yesterdayDuration'] as int,
         allPomos: stats['allPomos'] as int,
         allDuration:stats['allDuration'] as int,
-        chartData: chartData
+        chartData: chartData,
+        heatmapData: heatmapData
       )
     );
   }

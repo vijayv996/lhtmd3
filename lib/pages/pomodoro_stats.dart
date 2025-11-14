@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lhtmd3/services/database.dart';
+import 'package:lhtmd3/widgets/heat_map_widget.dart';
 import 'package:lhtmd3/widgets/pomo_bar_chart.dart';
 import 'package:lhtmd3/widgets/stat_card.dart';
 
@@ -91,7 +92,14 @@ class PomodoroStats extends StatelessWidget {
                     ],
                   ),
                   chartWidget,
-                  // TODO: add a heatmap
+                  Card(
+                    margin: EdgeInsets.all(10),
+                    child: HeatMapWidget(
+                      entryMap: pomos.heatmapData,
+                      showText: false,
+                      size: 20
+                    ),
+                  ),
                 ],
               ),
             );
