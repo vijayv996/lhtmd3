@@ -29,6 +29,12 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
     _habitsList = databaseService.getHabitsWithEntries([DateTime(2024, 1, 1), DateUtil.stripTime(DateTime.now())]);
   }
 
+  void onEntryUpdate(newEntry) {
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +72,8 @@ class _HeatmapHabitsPageState extends State<HeatmapHabitsPage> {
                   return HeatmapTile(
                     entryMap: entryMap,
                     habitName: habit.habit.habitName,
+                    habitType: habit.habit.habitType,
+                    habitId: habit.habit.habitId!,
                   );
                 }).toList(),
               ),
