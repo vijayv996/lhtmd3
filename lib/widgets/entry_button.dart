@@ -36,6 +36,9 @@ class _EntryButtonState extends State<EntryButton> {
 
   @override
   Widget build(BuildContext context) {
+    final String entryValueText = widget.entry?.value == null
+      ? '0\n${widget.measurementUnits}'
+      : '${widget.entry!.value.toString()}\n${widget.measurementUnits}';
     return SizedBox(
       height: 48,
       width: 48,
@@ -55,14 +58,14 @@ class _EntryButtonState extends State<EntryButton> {
           } else {
             newValue = 1;
           }
-          final newentry = HabitEntry(
+          final newEntry = HabitEntry(
             entryId: widget.entry?.entryId,
             habitId: widget.habitId,
             entryDate: widget.date,
             value: newValue
           );
-          await databaseService.insertEntry(newentry);
-          widget.onEntryUpdate(newentry);
+          await databaseService.insertEntry(newEntry);
+          widget.onEntryUpdate(newEntry);
         }, icon: _getIconForEntry(widget.entry?.value))
         : TextButton(
           onPressed: () {
@@ -106,29 +109,17 @@ class _EntryButtonState extends State<EntryButton> {
               },
             );
           }, 
-          child: widget.entry?.value == null
-          ? FittedBox(
+          child: FittedBox(
             child: Text(
-              '0\n${widget.measurementUnits}',
+              entryValueText,
               textAlign: TextAlign.center,
               softWrap: false,
               style: TextStyle(
                 fontSize: 10,
-                fontFamily: 'Roboto Mono',
+                fontFamily: 'Roboto Mono'
               ),
             ),
-          )
-          : FittedBox(
-            child: Text(
-              '${widget.entry!.value.toString()}\n${widget.measurementUnits}',
-              textAlign: TextAlign.center,
-              softWrap: false,
-              style: TextStyle(
-                fontSize: 10,
-                fontFamily: 'Roboto Mono',
-              ),
-            ),
-          )
+          ),
         ),
     );
   }
